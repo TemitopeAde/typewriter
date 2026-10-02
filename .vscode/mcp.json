@@ -7,6 +7,13 @@
         "@wix/mcp-remote",
         "https://mcp.wix.com/sse"
       ]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
     }
   }
 }

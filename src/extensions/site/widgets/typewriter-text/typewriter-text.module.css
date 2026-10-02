@@ -1,0 +1,21 @@
+.root {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+}
+
+.text {
+  width: 100%;
+  margin: 0;
+  font: inherit;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.cursor {
+  font-weight: 300;
+  color: var(--cursor-color, inherit);
+}

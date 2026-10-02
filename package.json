@@ -20,7 +20,10 @@
     "@wix/design-system": "^1.154.0",
     "@wix/essentials": "^0.1.23",
     "astro": "^5.8.0",
-    "typescript": "^5.8.3"
+    "gsap": "^3.15.0",
+    "react-to-webcomponent": "^2.0.1",
+    "typescript": "^5.8.3",
+    "@wix/editor": "^1.356.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
@@ -31,6 +34,7 @@
     "@wix/cli": "^1.1.135",
     "@wix/sdk-types": "^1.0.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "shadcn": "^4.21.1"
   }
 }
