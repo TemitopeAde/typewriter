@@ -1,8 +1,8 @@
-import React, { type FC, useMemo } from 'react';
+import React, { type FC, createElement, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import reactToWebComponent from 'react-to-webcomponent';
 import TextType from './TextType';
-import { parseSettings, SETTING_KEYS, type TypewriterSettings } from './config';
+import { parseSettings, splitTemplate, SETTING_KEYS, type TypewriterSettings } from './config';
 import styles from './typewriter-text.module.css';
 
 // Every setting arrives as a raw string attribute (e.g. `typing-speed="75"`).
@@ -20,6 +20,27 @@ const TypewriterText: FC<RawProps> = (raw) => {
     [s.variableSpeedEnabled, s.variableSpeedMin, s.variableSpeedMax]
   );
 
+  const template = splitTemplate(s.sentenceTemplate, s.words);
+  const textStyle = { fontSize: `${s.fontSize}px`, textAlign: s.textAlign, textDecoration: s.textDecoration };
+
+  // Animation options shared by both modes.
+  const typingProps = {
+    typingSpeed: s.typingSpeed,
+    initialDelay: s.initialDelay,
+    pauseDuration: s.pauseDuration,
+    deletingSpeed: s.deletingSpeed,
+    variableSpeed,
+    loop: s.loop,
+    startOnVisible: s.startOnVisible,
+    reverseMode: s.reverseMode,
+    showCursor: s.showCursor,
+    hideCursorWhileTyping: s.hideCursorWhileTyping,
+    cursorCharacter: s.cursorCharacter,
+    cursorBlinkDuration: s.cursorBlinkDuration,
+    cursorClassName: styles.cursor,
+    textColors: s.textColors,
+  };
+
   return (
     <div
       className={styles.root}
@@ -30,26 +51,23 @@ const TypewriterText: FC<RawProps> = (raw) => {
         justifyContent: s.textAlign === 'center' ? 'center' : s.textAlign === 'right' ? 'flex-end' : 'flex-start',
       }}
     >
-      <TextType
-        as={s.as}
-        className={styles.text}
-        style={{ fontSize: `${s.fontSize}px`, textAlign: s.textAlign, textDecoration: s.textDecoration }}
-        text={s.text}
-        typingSpeed={s.typingSpeed}
-        initialDelay={s.initialDelay}
-        pauseDuration={s.pauseDuration}
-        deletingSpeed={s.deletingSpeed}
-        variableSpeed={variableSpeed}
-        loop={s.loop}
-        startOnVisible={s.startOnVisible}
-        reverseMode={s.reverseMode}
-        showCursor={s.showCursor}
-        hideCursorWhileTyping={s.hideCursorWhileTyping}
-        cursorCharacter={s.cursorCharacter}
-        cursorBlinkDuration={s.cursorBlinkDuration}
-        cursorClassName={styles.cursor}
-        textColors={s.textColors}
-      />
+      {s.mode === 'word' ? (
+        createElement(
+          s.as,
+          { className: styles.text, style: textStyle },
+          template.before,
+          <TextType
+            {...typingProps}
+            as="span"
+            className={styles.word}
+            style={s.wordColor ? { color: s.wordColor } : undefined}
+            text={template.rotation}
+          />,
+          template.after
+        )
+      ) : (
+        <TextType {...typingProps} as={s.as} className={styles.text} style={textStyle} text={s.text} />
+      )}
     </div>
   );
 };

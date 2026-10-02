@@ -19,3 +19,7 @@
   font-weight: 300;
   color: var(--cursor-color, inherit);
 }
+
+.word {
+  white-space: pre;
+}
