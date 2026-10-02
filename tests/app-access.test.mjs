@@ -67,7 +67,32 @@ test('backend returns only installation entitlement, with no billing or owner fi
     getInstance: async () => ({ instance: { ...paid, instanceId: 'installation-a' }, site: { ownerInfo: 'private' } }),
   });
   assert.equal(result.status, 200);
-  assert.deepEqual(Object.keys(await result.json()).sort(), ['instanceId', 'serverTime', 'status']);
+  assert.deepEqual(Object.keys(await result.json()).sort(), ['freeTrialAvailable', 'instanceId', 'serverTime', 'status']);
+});
+
+test('trial eligibility comes from Wix and never grants access by itself', async () => {
+  const result = await handleAppAccess({
+    getTokenInfo: async () => ({ active: true, instanceId: 'installation-a' }),
+    getInstance: async () => ({ instance: { isFree: true, freeTrialAvailable: true, instanceId: 'installation-a' } }),
+  });
+  const data = parseAppAccess(await result.json());
+  assert.equal(data.freeTrialAvailable, true);
+  assert.equal(data.status, 'blocked');
+  assert.equal(parseAppAccess(response('blocked', start)).freeTrialAvailable, false);
+});
+
+test('access store carries trial eligibility to the panel', async () => {
+  let eligible = true;
+  let current;
+  const store = createAccessStore(async () => response('blocked', Date.now(), { freeTrialAvailable: eligible }));
+  const stop = store.subscribe((state) => { current = state; });
+  await flush();
+  assert.equal(current.freeTrialAvailable, true);
+  assert.equal(store.canAccess(), false);
+  eligible = false;
+  await store.refresh();
+  assert.equal(current.freeTrialAvailable, false);
+  stop();
 });
 
 test('billing failures and mismatched installations return errors without granting access', async (t) => {

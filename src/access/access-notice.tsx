@@ -16,7 +16,19 @@ export const AccessNotice: FC<{ access: AccessState; onRetry: () => void }> = ({
     ) : (
       <>
         <h3>Pro required</h3>
-        <p>Unlock all typewriter features with Pro or an active 3-day free trial.</p>
+        <p>{access.freeTrialAvailable
+          ? 'Try all typewriter features free for 3 days, or unlock them with Pro.'
+          : 'Unlock all typewriter features with Pro.'}</p>
+        {access.instanceId && access.freeTrialAvailable && (
+          <a
+            className={styles.primaryAction}
+            href={`https://www.wix.com/apps/upgrade/${APP_ID}?appInstanceId=${encodeURIComponent(access.instanceId)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Start free trial
+          </a>
+        )}
         {access.instanceId && (
           <a
             href={`https://www.wix.com/apps/upgrade/${APP_ID}?appInstanceId=${encodeURIComponent(access.instanceId)}`}

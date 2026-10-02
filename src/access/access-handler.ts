@@ -28,6 +28,7 @@ export async function handleAppAccess(deps: Dependencies): Promise<Response> {
       ...evaluateEntitlement(instance, now),
       instanceId,
       serverTime: new Date(now).toISOString(),
+      freeTrialAvailable: instance.freeTrialAvailable === true,
     }, { headers });
   } catch (error) {
     console.error('Failed to verify app access:', error);

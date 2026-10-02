@@ -4,11 +4,13 @@ export interface AppAccess {
   status: AccessStatus;
   instanceId: string;
   serverTime: string;
+  freeTrialAvailable: boolean;
   trialExpiresAt?: string;
 }
 
 export interface BillingInstance {
   isFree?: boolean;
+  freeTrialAvailable?: boolean;
   billing?: {
     packageName?: string;
     timeStamp?: string;
@@ -57,6 +59,7 @@ export function parseAppAccess(value: unknown): AppAccess {
     status,
     instanceId: data.instanceId,
     serverTime: data.serverTime,
+    freeTrialAvailable: data.freeTrialAvailable === true,
     ...(status === 'trial' && typeof data.trialExpiresAt === 'string'
       ? { trialExpiresAt: data.trialExpiresAt } : {}),
   };

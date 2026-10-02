@@ -4,6 +4,7 @@ export interface AccessState {
   status: AppAccess['status'] | 'loading' | 'error';
   instanceId?: string;
   trialExpiresAt?: string;
+  freeTrialAvailable?: boolean;
 }
 
 export const INITIAL_ACCESS: AccessState = { status: 'loading' };
@@ -42,11 +43,12 @@ export function createAccessStore(fetchAccess: () => Promise<unknown>) {
           : undefined;
         // Account for server/client clock skew and conservatively include request latency.
         if (deadline !== undefined && deadline <= Date.now()) {
-          publish({ status: 'blocked', instanceId: result.instanceId });
+          publish({ status: 'blocked', instanceId: result.instanceId, freeTrialAvailable: result.freeTrialAvailable });
         } else {
           publish({
             status: result.status,
             instanceId: result.instanceId,
+            freeTrialAvailable: result.freeTrialAvailable,
             ...(result.trialExpiresAt ? { trialExpiresAt: result.trialExpiresAt } : {}),
           });
           if (deadline !== undefined) {

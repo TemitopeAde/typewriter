@@ -114,3 +114,23 @@ test('restoring entitlement reopens settings and retains their configured defaul
   assert.match(renderPanel(), /Reset to defaults/);
   assert.doesNotMatch(renderPanel(), /Pro required/);
 });
+
+test('eligible owners can start a Wix-managed trial from either editor notice', () => {
+  setAccess('blocked', true);
+  globalThis.__typewriterAccessTest.freeTrialAvailable = true;
+  for (const html of [renderPanel(), renderComponent()]) {
+    assert.match(html, /Start free trial/);
+    assert.match(html, /apps\/upgrade\/51843ef5-c35a-443a-aa77-26b013a260b6\?appInstanceId=installation-a/);
+    assert.match(html, /target="_blank"/);
+    assert.doesNotMatch(html, /text-type__content/);
+  }
+});
+
+test('trial CTA is absent when ineligible, unverified, already active, or paid', () => {
+  for (const status of ['blocked', 'loading', 'error', 'trial', 'pro']) {
+    setAccess(status, true);
+    globalThis.__typewriterAccessTest.freeTrialAvailable = status !== 'blocked';
+    assert.doesNotMatch(renderPanel(), /Start free trial/);
+    assert.doesNotMatch(renderComponent(), /Start free trial/);
+  }
+});
