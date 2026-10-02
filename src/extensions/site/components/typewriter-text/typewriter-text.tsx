@@ -7,6 +7,8 @@ import { splitTemplate, validateTemplate } from '../../widgets/typewriter-text/c
 import { ARIA_LABELS } from './constants';
 import styles from './typewriter-text.module.css';
 import type { TypewriterTextProps } from './typewriter-text.props';
+import { useAppAccess } from '../../../../access/use-app-access';
+import { AccessNotice } from '../../../../access/access-notice';
 
 const PlayIcon: FC = () => (
   <svg className={styles.icon} viewBox="0 0 24 24" aria-hidden="true">
@@ -20,7 +22,7 @@ const PauseIcon: FC = () => (
   </svg>
 );
 
-const TypewriterText: FC<TypewriterTextProps> = (props) => {
+const TypewriterContent: FC<TypewriterTextProps> = (props) => {
   const {
     id,
     className,
@@ -145,6 +147,37 @@ const TypewriterText: FC<TypewriterTextProps> = (props) => {
       >
         {isPlayOn ? <PauseIcon /> : <PlayIcon />}
       </button>
+    </div>
+  );
+};
+
+const TypewriterText: FC<TypewriterTextProps> = (props) => {
+  const access = useAppAccess();
+  const isEditMode = useIsEditMode();
+  if (access.allowed) return <TypewriterContent {...props} />;
+  return (
+    <div
+      id={props.id}
+      dir={props.direction}
+      hidden={!isEditMode}
+      style={!isEditMode ? { display: 'none' } : undefined}
+      className={classNames('typewriter-text', styles.root, styles.fallbackDirection, props.className)}
+    >
+      {/* Empty hidden parts preserve Wix's style-panel discovery without mounting paid content. */}
+      {createElement(props.tag ?? 'h2', {
+        className: classNames('typewriter-text-headline', styles.headline),
+        hidden: true,
+        style: { display: 'none' },
+      }, <span className={classNames('typewriter-text-animated-text', styles.animatedText)} />)}
+      <button
+        type="button"
+        hidden
+        disabled
+        style={{ display: 'none' }}
+        className={classNames('typewriter-text-play-button', styles.playButton)}
+        aria-label={ARIA_LABELS.playButton}
+      />
+      {isEditMode && <AccessNotice access={access} onRetry={() => { void access.refresh(); }} />}
     </div>
   );
 };

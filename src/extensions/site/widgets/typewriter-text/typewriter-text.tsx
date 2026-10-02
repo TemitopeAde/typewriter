@@ -4,11 +4,12 @@ import reactToWebComponent from 'react-to-webcomponent';
 import TextType from './TextType';
 import { parseSettings, splitTemplate, SETTING_KEYS, type TypewriterSettings } from './config';
 import styles from './typewriter-text.module.css';
+import { useAppAccess } from '../../../../access/use-app-access';
 
 // Every setting arrives as a raw string attribute (e.g. `typing-speed="75"`).
 type RawProps = Partial<Record<keyof TypewriterSettings, string>>;
 
-const TypewriterText: FC<RawProps> = (raw) => {
+const TypewriterContent: FC<RawProps> = (raw) => {
   const s = parseSettings(raw);
 
   // Stable object so the typing effect doesn't restart on every render.
@@ -70,6 +71,11 @@ const TypewriterText: FC<RawProps> = (raw) => {
       )}
     </div>
   );
+};
+
+const TypewriterText: FC<RawProps> = (raw) => {
+  const access = useAppAccess();
+  return access.allowed ? <TypewriterContent {...raw} /> : null;
 };
 
 export default reactToWebComponent(TypewriterText, React, ReactDOM, {

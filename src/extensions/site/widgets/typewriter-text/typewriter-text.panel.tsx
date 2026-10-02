@@ -19,6 +19,8 @@ import {
   ToggleSwitch,
 } from '@wix/design-system';
 import '@wix/design-system/styles.global.css';
+import { useAppAccess } from '../../../../access/use-app-access';
+import { AccessNotice } from '../../../../access/access-notice';
 import {
   ALIGN_OPTIONS,
   CURSOR_OPTIONS,
@@ -79,6 +81,7 @@ const Swatch: FC<{ color: string; onClick: () => void }> = ({ color, onClick }) 
 );
 
 const Panel: FC = () => {
+  const access = useAppAccess();
   const [settings, setSettings] = useState<TypewriterSettings>(DEFAULTS);
   const [textDraft, setTextDraft] = useState(DEFAULTS.text.join('\n'));
   const [wordsDraft, setWordsDraft] = useState(DEFAULTS.words.join('\n'));
@@ -95,6 +98,7 @@ const Panel: FC = () => {
   }, []);
 
   const update = useCallback(<K extends keyof TypewriterSettings>(key: K, value: TypewriterSettings[K]) => {
+    if (!access.canAccess()) return;
     setSettings((prev) => ({ ...prev, [key]: value }));
     widget.setProp(toAttr(key), serialize(value))
       .catch((error) => console.error(`Failed to save ${key}:`, error));
@@ -102,7 +106,7 @@ const Panel: FC = () => {
       widget.setPreloadFonts(value ? [value] : [])
         .catch((error) => console.error('Failed to preload the selected font:', error));
     }
-  }, []);
+  }, [access.canAccess]);
 
   const onNumber = <K extends keyof TypewriterSettings>(key: K) => (value: number | null) => {
     if (value !== null) update(key, value as TypewriterSettings[K]);
@@ -116,6 +120,7 @@ const Panel: FC = () => {
     }).catch((error) => console.error('Failed to open the color picker:', error));
 
   const resetAll = () => {
+    if (!access.canAccess()) return;
     setSettings(DEFAULTS);
     setTextDraft(DEFAULTS.text.join('\n'));
     setWordsDraft(DEFAULTS.words.join('\n'));
@@ -128,6 +133,19 @@ const Panel: FC = () => {
   const s = settings;
   const isWordMode = s.mode === 'word';
   const templateError = validateTemplate(s.sentenceTemplate);
+
+  if (!access.allowed) {
+    return (
+      <WixDesignSystemProvider>
+        <SidePanel width="300" height="100vh">
+          <SidePanel.Header title="Typewriter Text" />
+          <SidePanel.Content>
+            <AccessNotice access={access} onRetry={() => { void access.refresh(); }} />
+          </SidePanel.Content>
+        </SidePanel>
+      </WixDesignSystemProvider>
+    );
+  }
 
   return (
     <WixDesignSystemProvider>
