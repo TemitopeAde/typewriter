@@ -17,7 +17,7 @@ const TypewriterTextPreview: FC<ComponentProps<typeof Component>> = (props) => {
   return (
     <Component
       {...props}
-      autoPlay={isEditMode ? false : props.autoPlay}
+      autoPlay={props.autoPlay}
       pauseButtonVisibility={isEditMode ? 'showAlways' : props.pauseButtonVisibility}
     />
   );

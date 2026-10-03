@@ -9,6 +9,7 @@ import styles from './typewriter-text.module.css';
 import type { TypewriterTextProps } from './typewriter-text.props';
 import { useAppAccess } from '../../../../access/use-app-access';
 import { AccessNotice } from '../../../../access/access-notice';
+import { useIsEditorOrPreview } from '../../../../access/use-is-preview';
 
 const PlayIcon: FC = () => (
   <svg className={styles.icon} viewBox="0 0 24 24" aria-hidden="true">
@@ -154,7 +155,9 @@ const TypewriterContent: FC<TypewriterTextProps> = (props) => {
 const TypewriterText: FC<TypewriterTextProps> = (props) => {
   const access = useAppAccess();
   const isEditMode = useIsEditMode();
-  if (access.allowed) return <TypewriterContent {...props} />;
+  // Owners can animate in the editor and Preview; published sites require access.
+  const isEditorOrPreview = useIsEditorOrPreview();
+  if (access.allowed || isEditMode || isEditorOrPreview) return <TypewriterContent {...props} />;
   return (
     <div
       id={props.id}

@@ -19,7 +19,7 @@ export const AccessNotice: FC<{ access: AccessState; onRetry: () => void }> = ({
         <p>{access.freeTrialAvailable
           ? 'Try all typewriter features free for 3 days, or unlock them with Pro.'
           : 'Unlock all typewriter features with Pro.'}</p>
-        {access.instanceId && access.freeTrialAvailable && (
+        {access.instanceId && (
           <a
             className={styles.primaryAction}
             href={`https://www.wix.com/apps/upgrade/${APP_ID}?appInstanceId=${encodeURIComponent(access.instanceId)}`}
@@ -27,15 +27,6 @@ export const AccessNotice: FC<{ access: AccessState; onRetry: () => void }> = ({
             rel="noopener noreferrer"
           >
             Start free trial
-          </a>
-        )}
-        {access.instanceId && (
-          <a
-            href={`https://www.wix.com/apps/upgrade/${APP_ID}?appInstanceId=${encodeURIComponent(access.instanceId)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View Pro plans
           </a>
         )}
         <button type="button" onClick={onRetry}>Check access again</button>

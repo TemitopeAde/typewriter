@@ -5,6 +5,7 @@ import TextType from './TextType';
 import { parseSettings, splitTemplate, SETTING_KEYS, type TypewriterSettings } from './config';
 import styles from './typewriter-text.module.css';
 import { useAppAccess } from '../../../../access/use-app-access';
+import { useIsEditorOrPreview } from '../../../../access/use-is-preview';
 
 // Every setting arrives as a raw string attribute (e.g. `typing-speed="75"`).
 type RawProps = Partial<Record<keyof TypewriterSettings, string>>;
@@ -75,7 +76,9 @@ const TypewriterContent: FC<RawProps> = (raw) => {
 
 const TypewriterText: FC<RawProps> = (raw) => {
   const access = useAppAccess();
-  return access.allowed ? <TypewriterContent {...raw} /> : null;
+  // Owners can animate in the editor and Preview; published sites require access.
+  const isEditorOrPreview = useIsEditorOrPreview();
+  return access.allowed || isEditorOrPreview ? <TypewriterContent {...raw} /> : null;
 };
 
 export default reactToWebComponent(TypewriterText, React, ReactDOM, {

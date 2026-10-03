@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { httpClient } from '@wix/essentials';
 import { createAccessStore, INITIAL_ACCESS, type AccessState } from './access-store';
 
-const endpointUrl = new URL('/api/app-access', import.meta.url).href;
+// Use the module's origin (the app server, not the host site). `new URL('<literal>', import.meta.url)`
+// is avoided on purpose: Vite treats it as an asset import and rewrites it to /@fs/... in dev.
+const endpointUrl = `${new URL(import.meta.url).origin}/api/app-access`;
 
 const store = createAccessStore(async () => {
   const controller = new AbortController();
